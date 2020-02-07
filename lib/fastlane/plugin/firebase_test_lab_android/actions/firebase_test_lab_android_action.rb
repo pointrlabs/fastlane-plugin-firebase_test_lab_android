@@ -17,16 +17,18 @@ module Fastlane
         # Activate service account
         Helper.authenticate(params[:gcloud_service_key_file])
         # Run Firebase Test Lab
-        Helper.run_tests(params[:gcloud_components_channel], "--type #{params[:type]} "\
-                  "--app #{params[:app_apk]} "\
-                  "#{"--test #{params[:app_test_apk]} " unless params[:app_test_apk].nil?}"\
-                  "#{"--use-orchestrator " if params[:type] == "instrumentation" && params[:use_orchestrator]}"\
-                  "#{params[:devices].map { |d| "--device model=#{d[:model]},version=#{d[:version]},locale=#{d[:locale]},orientation=#{d[:orientation]} " }.join}"\
-                  "--timeout #{params[:timeout]} "\
-                  "--results-bucket #{results_bucket} "\
-                  "--results-dir #{results_dir} "\
-                  "#{params[:extra_options]} "\
-                  "--format=json 1>#{Helper.if_need_dir(params[:console_log_file_name])}"
+        Helper.run_tests(params[:gcloud_components_channel], %{
+          --type #{params[:type]}
+          --app #{params[:app_apk]}
+          #{"--test #{params[:app_test_apk]} " unless params[:app_test_apk].nil?}
+          #{"--use-orchestrator " if params[:type] == "instrumentation" && params[:use_orchestrator]}
+          #{params[:devices].map { |d| "--device model=#{d[:model]},version=#{d[:version]},locale=#{d[:locale]},orientation=#{d[:orientation]} " }.join}
+          --timeout #{params[:timeout]}
+          --results-bucket #{results_bucket}
+          --results-dir #{results_dir}
+          #{params[:extra_options]}
+          --format=json 1>#{Helper.if_need_dir(params[:console_log_file_name])}
+        }.gsub("\n", ' ').squeeze(' ')
         )
 
         # Sample data
